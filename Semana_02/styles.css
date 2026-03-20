@@ -92,13 +92,11 @@ figcaption {
 }
 
 ol {
-    border: 2px solid red;
     width: 300px;
     margin: 20px auto;
     padding: 10px;
     list-style-position: inside;
     text-align: center;
-    background-color: black;
     border-radius: 10px;
 }
 
