@@ -1,0 +1,47 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: gray;
+    color: white;
+}
+
+nav {
+    background-color: #333;
+    padding: 10px;
+    
+}
+
+a {
+    color: white;
+    text-decoration: none;
+    margin-right: 15px;
+}
+ul{
+    display: flex;
+    justify-content: center;
+}
+
+
+li{
+    list-style: none;
+}
+
+h1 {
+    color: red;
+    text-align: center;
+}
+
+.re{
+    color: red;
+    text-align: center;
+}
+
+.co{
+    color: red;
+    text-align: center;
+}
+
+.op{
+    color: red;
+    text-align: center;
+}
