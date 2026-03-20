@@ -1,68 +1,125 @@
+
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
-    background-color: gray;
+    margin: 0;
+    background-color: #2b2b2b;
     color: white;
     text-align: center;
 }
 
 nav {
-    background-color: #333;
-    padding: 10px;
-    
+    background-color: #1a1a1a;
+    padding: 15px;
+}
+
+ul {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 0;
+}
+
+li {
+    list-style: none;
 }
 
 a {
     color: white;
     text-decoration: none;
-    margin-right: 15px;
-}
-ul{
-    display: flex;
-    justify-content: center;
+    padding: 8px 15px;
+    border-radius: 5px;
 }
 
+a:hover {
+    background-color: #444;
+}
 
-li{
-    list-style: none;
+header {
+    padding: 30px 20px;
 }
 
 h1 {
     color: red;
+    margin-bottom: 5px;
 }
 
-.re{
-    color: red;
+h2 {
+    margin-top: 10px;
 }
 
-.co{
-    color: red;
+main {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
 }
 
-.op{
+section, article, aside {
+    background-color: #1f1f1f;
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.re, .co, .op {
     color: red;
 }
 
 img {
     display: block;
-    margin: 0 auto;
+    margin: 20px auto;
     max-width: 100%;
-    height: auto;
+    border-radius: 10px;
 }
 
 figcaption {
-
     font-style: italic;
     margin-top: 5px;
 }
 
-a {
+.enlace {
+    display: inline-block;
     color: rgb(140, 0, 255);
-    text-decoration: none;
+    border: 2px solid red;
+    background-color: black;
+    padding: 10px 20px;
+    margin-top: 15px;
+    border-radius: 8px;
+}
+
+.enlace:hover {
+    background-color: red;
+    color: white;
+}
+
+ol {
+    border: 2px solid red;
+    width: 300px;
+    margin: 20px auto;
+    padding: 10px;
+    list-style-position: inside;
+    text-align: center;
+    background-color: black;
+    border-radius: 10px;
 }
 
 table {
-    width: 80%;
-    margin: 30px auto;
+    width: 100%;
+    margin: 20px auto;
     border-collapse: collapse;
+    background-color: #1f1f1f;
+}
+
+th, td {
+    border: 1px solid #444;
+    padding: 10px;
+}
+
+th {
+    background-color: red;
+}
+
+footer {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #1a1a1a;
 }
