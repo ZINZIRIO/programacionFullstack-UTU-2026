@@ -3,6 +3,7 @@ body {
     margin: 20px;
     background-color: gray;
     color: white;
+    text-align: center;
 }
 
 nav {
@@ -28,20 +29,40 @@ li{
 
 h1 {
     color: red;
-    text-align: center;
 }
 
 .re{
     color: red;
-    text-align: center;
 }
 
 .co{
     color: red;
-    text-align: center;
 }
 
 .op{
     color: red;
-    text-align: center;
+}
+
+img {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+}
+
+figcaption {
+
+    font-style: italic;
+    margin-top: 5px;
+}
+
+a {
+    color: rgb(140, 0, 255);
+    text-decoration: none;
+}
+
+table {
+    width: 80%;
+    margin: 30px auto;
+    border-collapse: collapse;
 }
