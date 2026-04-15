@@ -1,0 +1,75 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    }
+
+.botones {
+    background-color:lightgray;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    max-width: 450px;
+    margin-top: 20px;
+    padding: 10px;
+    margin-left: 10px;
+    height: 150px;
+}
+
+.botones > div{
+    width: 130px;
+    height: 130px;
+    border: solid 4px black;
+    padding: 10px;
+}
+
+
+
+.cursos {
+padding: 10px;
+width: 450px;
+background-color: lightgray;
+margin-left: 20px;
+margin-top: 20px;
+
+
+}
+
+
+.cursos > div {
+background: white;
+padding: 20px;
+border-left: 6px solid #3b6e9c; 
+}
+
+
+.cursos > div > div {
+display: inline-block;
+background: #3b6e9c;
+color: white;
+padding: 5px 10px;
+font-size: 14px;
+gap: 10px;
+
+}
+
+.cursos h2 {
+margin: 10px 0;
+}
+
+
+.cursos p {
+margin: 0;
+color: #555;
+}
+
+
+
+
+
+
+
+
+
