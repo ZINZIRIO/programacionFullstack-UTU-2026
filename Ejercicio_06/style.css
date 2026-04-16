@@ -1,0 +1,167 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.flex{
+    display: flex;
+    font-family: Arial, sans-serif;
+}
+
+.botones {
+    display: flex;
+    gap:20px;
+    padding: 20px;
+    height: 84px;
+    
+}
+
+
+.botones > div {
+    border-radius: 0.5rem;
+    padding: 13px;
+    display: flex;
+    gap: 10px;
+    
+}
+
+i {
+    font-size: 0.6rem;
+}
+
+.botones > div:hover {
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+.productos {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background-color: #F5F6FA;
+    height: 200px;
+    align-items: center;
+    margin-top: 20px;
+
+}
+
+.productos > .pro1 {
+    background-color:#74B9FF;
+    padding: 20px;
+    border-radius: 0.5rem;
+    height: 85px;
+    align-items: center;
+    display: flex;
+    cursor: pointer;
+    text-decoration: none;
+    }
+
+
+.pro1:hover {
+        opacity: 0.5;
+        cursor: pointer;
+
+    }
+
+.productos > .pro2 {
+    background-color:#FF7675;
+    border-radius: 0.5rem;
+    height: 85px;
+    align-items: center;
+    display: flex;
+    padding: 30px;
+    margin-top: 70px;
+    
+    
+}
+
+.productos > .pro2 > p{
+    position: relative;
+    margin-left: -15px;
+}
+
+span {
+    color: white;
+    font-size: 0.8rem;
+    background-color: red;
+    padding: 8px;
+    border-radius: 0.5rem;
+    height: 98px;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    font-size: 10px;
+    margin-bottom: 24px;
+    margin-right: 20px;
+    position: relative;
+    left: -24px;
+    
+}
+
+.productos > .pro3{
+    background-color:#74B9FF;
+    border-radius: 0.5rem;
+    height: 85px;
+    align-items: center;
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+    text-decoration: none;
+}
+
+.pro3:hover {
+    opacity: 0.5;
+    cursor: pointer;
+
+}
+
+
+nav {
+    display: flex;
+    padding: 20px 20px;
+    background-color: #2D3436;
+    height: 40px;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0px;
+    z-index: 1;
+    width: 100%;
+}
+
+nav > img {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+
+}
+
+.cat {
+    display: flex;
+    background-color: #74B9FF;
+    height: 20px;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+    margin-top: 40px;
+}
+
+.cont {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background-color: #F5F6FA;
+    height: 100px;
+    align-items: center;
+    width: 100%;
+}
+
+.sidebar{
+    height: 800px;
+}
+
+hr {
+    border-top: 4px dashed #FF0000;
+    width: 100%;
+}
