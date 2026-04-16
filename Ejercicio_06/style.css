@@ -4,16 +4,15 @@
     box-sizing: border-box;
 }
 
-.flex{
-    display: flex;
-    font-family: Arial, sans-serif;
-}
-
 .botones {
+    margin-top: 30px;
+    margin-bottom: 20px;
     display: flex;
     gap:20px;
     padding: 20px;
     height: 84px;
+    justify-content: center;
+    
     
 }
 
@@ -38,11 +37,17 @@ i {
 .productos {
     display: flex;
     gap: 20px;
-    padding: 20px;
     background-color: #F5F6FA;
     height: 200px;
     align-items: center;
     margin-top: 20px;
+    justify-content: center;
+    max-width: 40%;
+    margin: 0 auto;
+
+
+
+    
 
 }
 
