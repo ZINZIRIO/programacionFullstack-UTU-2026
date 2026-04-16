@@ -134,6 +134,7 @@ nav {
     z-index: 4;
     width: 100%;
     
+    
 
 }
 
@@ -150,13 +151,11 @@ nav > img {
     height: 20px;
     align-items: center;
     padding: 20px;
-    top: 40px;
+    top: 60px;
     width: 100%;
     position: sticky;
     z-index: 1;
     margin-top: 20px;
-    
-    
 }
 
 .cont {
