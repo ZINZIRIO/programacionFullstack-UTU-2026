@@ -131,8 +131,10 @@ nav {
     justify-content: space-between;
     position: sticky;
     top: 0px;
-    z-index: 1;
+    z-index: 4;
     width: 100%;
+    
+
 }
 
 nav > img {
@@ -148,25 +150,32 @@ nav > img {
     height: 20px;
     align-items: center;
     padding: 20px;
+    top: 40px;
     width: 100%;
-    margin-top: 40px;
+    position: sticky;
+    z-index: 1;
+    margin-top: 20px;
+    
+    
 }
 
 .cont {
     display: flex;
-    gap: 20px;
-    padding: 20px;
     background-color: #F5F6FA;
-    height: 100px;
+    height: 600px;
     align-items: center;
     width: 100%;
+    z-index: 3;
+    position: relative
+    
+
 }
 
-.sidebar{
-    height: 800px;
-}
 
 hr {
     border-top: 4px dashed #FF0000;
     width: 100%;
+    margin-top: 400px;
+    z-index: 3;
+    position: relative;
 }
