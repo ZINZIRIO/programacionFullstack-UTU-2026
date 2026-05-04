@@ -1,0 +1,324 @@
+@import url('https://fonts.googleapis.com/css2?family=Commissioner:wght@100..900&display=swap');
+
+/*Configuraciones generales*/
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/*Estilos generales de la pagina web*/
+body{
+    font-family: Commissioner, Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    background-color: #FAFAFA;
+    height: auto;
+}
+
+p{
+    color: #7B7B7B;
+}
+
+/*Imagen header*/
+header{
+    background-image: url(/programacionFullstack-UTU-2026/escrito-mayo/assets/images/image-hero-desktop.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    height: 25rem;
+}
+
+/*Navegacion*/
+
+.navegation{
+    display: flex;
+    justify-content: space-between;
+    padding: 2rem 12rem;
+    align-items: center;
+}
+
+
+.menu{
+    display: flex;
+    gap: 2rem;  
+}
+
+li{
+    list-style: none;
+}
+
+.menu > li > a{
+    text-decoration: none;
+    color: white;   
+}
+
+.menu > li > a:hover{
+    color: #BED199;
+    transition: ease-in-out 0.2s;
+}
+
+/*Logo nav*/
+.logotitile{
+    background-image: url(/programacionFullstack-UTU-2026/escrito-mayo/assets/images/logo.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    width: 8rem;
+    height: 8rem;
+}
+
+/*Logo main*/
+.containerlogo{
+    display: flex;
+    justify-content: center;
+}
+
+.logo {background-image: url(/programacionFullstack-UTU-2026/escrito-mayo/assets/images/logo-mastercraft.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: -1.5rem;
+    position: relative;
+    z-index: 1;
+
+}
+
+/*Info del Monitor*/
+main{
+    display: flex;
+    justify-content: center;
+}
+
+.info{
+    position: relative;
+    top: -100px;
+}
+
+.info > section{
+    background-color: #ffff;
+    margin-bottom: 20px;
+    border: 0.2px solid #E2E2E2;
+    border-radius: 0.5rem;
+    width: 650px;
+}
+
+.Master {
+    text-align: center;
+    padding: 2rem;
+}
+
+.Master > .botones{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0px 10px;
+    margin-top: 35px;
+    margin-bottom: 5px;
+}
+
+.Master > h1{
+    margin: 20px auto;
+}
+
+.Master > p{
+    margin: 20px auto;
+}
+
+.back {
+    background-color: hsl(176, 50%, 47%);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 2rem;
+    cursor: pointer;
+    margin-right: 1rem;
+    font-weight: bold;
+    font-size: 0.8rem;
+    
+}
+
+.back:hover{
+    background-color: #BED199;
+    transition: ease-in-out 0.2s;
+}
+
+.imgbookmark {
+    background-image: url(/programacionFullstack-UTU-2026/escrito-mayo/assets/images/icon-bookmark.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    width: 3rem;
+    height: 3rem;
+    margin-left: auto;
+    background-color:  #F4F4F4;
+    border-radius: 2rem 0rem 0rem 2rem;
+    
+}
+
+.bookmarked{
+    display: flex;
+}
+
+.textbookmark{
+    background-color:  #F4F4F4;
+    padding: 8px 15px;
+    border-radius: 0rem 2rem 2rem 0rem;
+    align-items: center;
+    display: flex;
+    color: #7B7B7B;
+    font-size: 0.8rem;
+}
+
+.stats{
+    height: 180px;
+    padding-top: 20px;
+}
+.columns{
+    display: flex;
+    margin-bottom: 30px;
+}
+
+.columns > div{
+    padding: 0px 40px;
+    margin-top: 20px;
+    padding-left: 30px;
+    border-right: 0.5px solid hsl(0, 0%, 48%);
+}
+
+.columns > div > h2{
+    margin-bottom: 5px;
+    
+}
+
+.barra{
+    height: 10px;
+    background-color: #e0e0e0;
+    margin: 20px 30px;
+    border-radius: 2rem;
+}
+
+
+.progreso{
+    height: 10px;
+    width: 80%;
+    background-color: hsl(176, 50%, 47%);
+    border-radius: 2rem;
+}
+
+.about{
+    padding: 40px;
+    
+
+    
+}
+
+.about > h2{
+    margin-bottom: 30px;
+    margin-top: 10px;
+    font-size: 1.2rem;
+}
+
+.plans {
+    margin-top: 30px;
+}
+
+
+.plans > div{
+    border : 0.2px solid #E2E2E2;
+    border-radius: 0.4rem;
+    padding: 20px;
+    margin-top: 20px;
+    
+}
+
+
+.plans > div > div > h2{
+    margin-bottom: 45px;
+    font-size: 1.2rem;
+}
+
+.plans > div > div:first-child{
+    display: flex;
+    justify-content: space-between;
+}
+
+.plans > div > div:last-child{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    
+}
+
+
+.plans > div > p{
+    margin-bottom: 20px;
+}
+
+.plans > div > div:first-child > p{
+    color: hsl(176, 50%, 47%);
+    
+    
+}
+
+.plans > div > div:last-child > a{
+    border: 0.2px solid hsl(176, 50%, 47%);
+    border-radius: 2rem;
+    padding: 11px 23px;
+    background-color: hsl(176, 50%, 47%); ;
+    color: white;
+    font-weight: bold;
+    font-size: 0.8rem;
+    cursor: pointer;
+    
+}
+
+.plans > div > div:last-child > a:hover{
+    background-color: #BED199;
+    border: 0.2px solid #BED199;
+    transition: ease-in-out 0.2s;
+}
+
+.plans > div > div >  p > span {
+    font-size: 2rem;
+    font-weight: bold;
+    color: black;
+}
+
+.mahogany{
+    opacity: 0.5;
+}
+
+.plans > div:last-child > div:last-child > a{
+    background-color: #7B7B7B;
+    border: 0.2px solid #7B7B7B;
+}
+
+.reward:hover{
+    background-color: red;
+}
+
+/*Media querry*/
+@media (max-width:800px) {
+    .navegation{
+        flex-direction: column;
+    }
+    .info > section{
+        width: 370px;
+    }
+    .columns{
+        margin: 0px 23px;
+    }
+    .columns > div{
+        padding-left: 10px;
+        font-size: 14px;
+    }
+    .menu{
+        gap: 1rem;
+    }
+    .menu > li:last-child {
+        width: 100px;
+    }
+}
