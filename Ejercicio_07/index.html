@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<h>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio 7</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">  
+    
+
+<body>
+
+    <div class="container mt-5">
+    
+    <div class="row text-center mb-3">
+
+        <!-- Intentos -->
+        <div class="col">
+            <div class="alert alert-primary">
+                Intentos: <span>0</span>
+            </div>
+        </div>
+
+        <!-- Pares -->
+        <div class="col">
+            <div class="alert alert-success">
+                Pares: <span>0</span>
+            </div>
+        </div>
+
+        <!-- Mensaje -->
+        <div class="col">
+            <div class="alert alert-warning">
+                Par encontrado
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Botones -->
+    
+    <div class="row text-center mb-3">
+        <div class="col">
+            <button class="btn btn-success me-2">Empezar</button>
+            <button class="btn btn-warning me-2">Reiniciar</button>
+            <button class="btn btn-danger">Terminar</button>
+        </div>
+    </div>
+
+    <!-- Tablero -->
+    
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-2">
+
+<div class="col">
+    <div class="card" data-card="blue-eyes">
+        <img src="https://images.ygoprodeck.com/images/cards/89631139.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Blue-Eyes</h6>
+            <p class="card-text">ATK 3000</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="dark-magician">
+        <img src="https://images.ygoprodeck.com/images/cards/46986414.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Dark Magician</h6>
+            <p class="card-text">ATK 2500</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="red-eyes">
+        <img src="https://images.ygoprodeck.com/images/cards/74677422.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Red-Eyes</h6>
+            <p class="card-text">ATK 2400</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="exodia">
+        <img src="https://images.ygoprodeck.com/images/cards/70781052.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Exodia</h6>
+            <p class="card-text">Win</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="slifer">
+        <img src="https://images.ygoprodeck.com/images/cards/55144522.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Slifer</h6>
+            <p class="card-text">God</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="obelisk">
+        <img src="https://images.ygoprodeck.com/images/cards/10000000.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Obelisk</h6>
+            <p class="card-text">God</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="ra">
+        <img src="https://images.ygoprodeck.com/images/cards/23995346.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Ra</h6>
+            <p class="card-text">God</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="dm-girl">
+        <img src="https://images.ygoprodeck.com/images/cards/4031928.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">DM Girl</h6>
+            <p class="card-text">ATK 2000</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="summoned-skull">
+        <img src="https://images.ygoprodeck.com/images/cards/53129443.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Summoned Skull</h6>
+            <p class="card-text">ATK 2500</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="jinzo">
+        <img src="https://images.ygoprodeck.com/images/cards/77585513.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Jinzo</h6>
+            <p class="card-text">ATK 2400</p>
+        </div>
+    </div>
+</div>
+
+
+<!-- REPETIDAS -->
+
+
+<div class="col">
+    <div class="card" data-card="blue-eyes">
+        <img src="https://images.ygoprodeck.com/images/cards/89631139.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Blue-Eyes</h6>
+            <p class="card-text">ATK 3000</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="dark-magician">
+        <img src="https://images.ygoprodeck.com/images/cards/46986414.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Dark Magician</h6>
+            <p class="card-text">ATK 2500</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="red-eyes">
+        <img src="https://images.ygoprodeck.com/images/cards/74677422.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Red-Eyes</h6>
+            <p class="card-text">ATK 2400</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="exodia">
+        <img src="https://images.ygoprodeck.com/images/cards/70781052.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Exodia</h6>
+            <p class="card-text">Win</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="slifer">
+        <img src="https://images.ygoprodeck.com/images/cards/55144522.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Slifer</h6>
+            <p class="card-text">God</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="obelisk">
+        <img src="https://images.ygoprodeck.com/images/cards/10000000.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Obelisk</h6>
+            <p class="card-text">God</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="ra">
+        <img src="https://images.ygoprodeck.com/images/cards/23995346.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Ra</h6>
+            <p class="card-text">God</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="dm-girl">
+        <img src="https://images.ygoprodeck.com/images/cards/4031928.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">DM Girl</h6>
+            <p class="card-text">ATK 2000</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="summoned-skull">
+        <img src="https://images.ygoprodeck.com/images/cards/53129443.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Summoned Skull</h6>
+            <p class="card-text">ATK 2500</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="col">
+    <div class="card" data-card="jinzo">
+        <img src="https://images.ygoprodeck.com/images/cards/77585513.jpg" class="card-img-top">
+        <div class="card-body">
+            <h6 class="card-title">Jinzo</h6>
+            <p class="card-text">ATK 2400</p>
+        </div>
+    </div>
+</div>
+
+    </div>
+
+</body>
+</html>
