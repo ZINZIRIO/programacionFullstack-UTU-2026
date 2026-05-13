@@ -118,15 +118,22 @@
                                 </div>
                             </div>
 
-                            <div class="counter-orbit">
-                                <div class="counter-circle">
-                                    <span id="repCounter">0</span>
-                                    <small>repeticiones</small>
-                                </div>
-                            </div>
-
                             <p id="voiceTranscript" class="transcript">Toca iniciar para activar camara y comandos de voz.</p>
                             <p id="poseFeedback" class="pose-feedback">FitVoice AI analizara tu postura en tiempo real.</p>
+
+                            <div class="detection-panel">
+                                <div>
+                                    <span>Deteccion</span>
+                                    <strong id="poseQualityText">Esperando camara</strong>
+                                </div>
+                                <div class="detection-meter" aria-label="Calidad de deteccion">
+                                    <span id="poseQualityBar"></span>
+                                </div>
+                                <div class="detection-meta">
+                                    <span id="movementPhaseText">Fase: arriba</span>
+                                    <span id="poseMetricText">Angulo: --</span>
+                                </div>
+                            </div>
 
                             <div class="control-grid">
                                 <button id="startBtn" class="btn btn-neon" type="button">
@@ -150,9 +157,17 @@
                     </div>
 
                     <div class="col-lg-5">
-                        <div class="glass-card h-100">
-                            <p class="panel-label">Temporizador</p>
-                            <div class="timer-display" id="timerDisplay">00:00</div>
+                        <div class="glass-card h-100 training-side-panel">
+                            <div class="live-metrics">
+                                <div class="counter-circle">
+                                    <span id="repCounter">0</span>
+                                    <small>repeticiones</small>
+                                </div>
+                                <div class="timer-block">
+                                    <p class="panel-label">Temporizador</p>
+                                    <div class="timer-display" id="timerDisplay">00:00</div>
+                                </div>
+                            </div>
                             <div class="progress mb-4" role="progressbar" aria-label="Progreso de objetivo">
                                 <div id="goalProgress" class="progress-bar" style="width: 0%"></div>
                             </div>
@@ -232,9 +247,18 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="glass-card h-100">
-                            <p class="panel-label">Recomendacion inteligente</p>
-                            <h3 id="aiRecommendation">Completa tu primer entrenamiento.</h3>
+                            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                                <div>
+                                    <p class="panel-label">Recomendacion inteligente</p>
+                                    <h3 id="aiRecommendation">Completa tu primer entrenamiento.</h3>
+                                </div>
+                                <button id="generateAiBtn" class="btn btn-neon btn-sm" type="button">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                    Gemini
+                                </button>
+                            </div>
                             <p class="soft-text" id="aiDetail">El sistema analizara tu historial local para sugerir intensidad, descanso o nuevos objetivos.</p>
+                            <p id="aiStatus" class="ai-status mb-0">Configura tu API key de Gemini para activar recomendaciones con IA.</p>
                         </div>
                     </div>
                 </div>
@@ -291,6 +315,28 @@
                             </select>
                         </div>
                     </div>
+                </div>
+
+                <div class="glass-card mt-4 presentation-notes">
+                    <p class="panel-label">Gemini API</p>
+                    <div class="row g-3 align-items-end">
+                        <div class="col-lg-8">
+                            <label for="geminiApiKeyInput" class="form-label">API key de Gemini</label>
+                            <input id="geminiApiKeyInput" type="password" class="form-control" placeholder="Pega tu clave solo en tu navegador">
+                            <div id="geminiKeyMessage" class="key-message" role="status">Todavia no guardaste una API key.</div>
+                        </div>
+                        <div class="col-lg-4 d-flex gap-2 flex-wrap">
+                            <button id="saveGeminiKeyBtn" class="btn btn-neon" type="button">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                Guardar
+                            </button>
+                            <button id="clearGeminiKeyBtn" class="btn btn-glass" type="button">
+                                <i class="fa-solid fa-key"></i>
+                                Borrar
+                            </button>
+                        </div>
+                    </div>
+                    <p class="soft-text mt-3 mb-0">Para clase o uso local: la clave queda en LocalStorage. Para publicar la app, conviene usar un backend o Cloudflare Worker para protegerla.</p>
                 </div>
 
                 <div class="glass-card mt-4 presentation-notes">

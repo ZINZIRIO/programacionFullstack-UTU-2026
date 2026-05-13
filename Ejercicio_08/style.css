@@ -288,6 +288,10 @@ h3 {
     flex-direction: column;
 }
 
+.training-side-panel {
+    padding-top: 3rem;
+}
+
 .status-pill {
     display: inline-flex;
     align-items: center;
@@ -318,14 +322,18 @@ h3 {
 .camera-stage {
     position: relative;
     width: 100%;
+    min-height: 24rem;
+    max-height: 72vh;
     margin: 1.4rem 0;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 4 / 3;
     overflow: hidden;
     border: 1px solid rgba(53, 255, 145, 0.22);
     border-radius: 1.3rem;
     background:
         linear-gradient(rgba(5, 7, 12, 0.28), rgba(5, 7, 12, 0.68)),
         repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 4rem);
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #poseVideo,
@@ -339,6 +347,7 @@ h3 {
 }
 
 #poseVideo {
+    background: #05070c;
     z-index: 1;
     opacity: 1;
 }
@@ -371,17 +380,12 @@ h3 {
     font-size: 2.4rem;
 }
 
-.counter-orbit {
-    display: grid;
-    place-items: center;
-    min-height: 16rem;
-}
-
 .counter-circle {
     display: grid;
     place-items: center;
-    width: min(62vw, 13rem);
-    height: min(62vw, 13rem);
+    flex: 0 0 auto;
+    width: 10.5rem;
+    height: 10.5rem;
     border: 1px solid rgba(53, 255, 145, 0.32);
     border-radius: 50%;
     background:
@@ -391,7 +395,7 @@ h3 {
 }
 
 .counter-circle span {
-    font-size: clamp(4.5rem, 10vw, 6.5rem);
+    font-size: clamp(3.8rem, 8vw, 5.4rem);
     line-height: 0.9;
     font-weight: 800;
 }
@@ -416,6 +420,46 @@ h3 {
     text-align: center;
 }
 
+.detection-panel {
+    display: grid;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+    padding: 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.detection-panel > div:first-child,
+.detection-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--muted);
+    font-size: 0.86rem;
+    font-weight: 800;
+}
+
+.detection-panel strong {
+    color: var(--text);
+}
+
+.detection-meter {
+    height: 0.5rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.detection-meter span {
+    display: block;
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--danger), var(--lime), var(--green));
+    transition: width 0.25s ease;
+}
+
 .control-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -423,9 +467,20 @@ h3 {
     margin-top: auto;
 }
 
+.live-metrics {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 1.2rem;
+}
+
+.timer-block {
+    min-width: 0;
+}
+
 .timer-display {
     margin: 0.5rem 0 1rem;
-    font-size: clamp(3rem, 7vw, 5rem);
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
     font-weight: 800;
 }
 
@@ -529,6 +584,35 @@ h3 {
     color: var(--muted);
 }
 
+.ai-status {
+    color: var(--green);
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.key-message {
+    margin-top: 0.65rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--line);
+    border-radius: 0.85rem;
+    color: var(--muted);
+    background: rgba(255, 255, 255, 0.06);
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.key-message.success {
+    border-color: rgba(53, 255, 145, 0.45);
+    color: var(--green);
+    background: rgba(53, 255, 145, 0.1);
+}
+
+.key-message.error {
+    border-color: rgba(255, 71, 120, 0.45);
+    color: #ff9ab5;
+    background: rgba(255, 71, 120, 0.1);
+}
+
 .history-list {
     display: grid;
     gap: 0.8rem;
@@ -591,6 +675,16 @@ h3 {
     .control-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    .camera-stage {
+        width: 100%;
+        min-height: 22rem;
+        max-height: 68vh;
+    }
+
+    .live-metrics {
+        justify-content: center;
+    }
 }
 
 /* Media query para celulares: se reducen espacios y los botones ocupan todo el ancho. */
@@ -604,8 +698,29 @@ h3 {
         border-radius: 1.1rem;
     }
 
+    .training-side-panel {
+        padding-top: 1.5rem;
+    }
+
+    .camera-stage {
+        width: 100%;
+        min-height: 20rem;
+        max-height: 70vh;
+    }
+
     .control-grid {
         grid-template-columns: 1fr;
+    }
+
+    .live-metrics {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .counter-circle {
+        width: min(68vw, 12rem);
+        height: min(68vw, 12rem);
+        margin: 0 auto;
     }
 
     .history-item {

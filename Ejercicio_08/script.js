@@ -1,4 +1,10 @@
 const STORAGE_KEY = "fitvoice-ai-data";
+const GEMINI_KEY_STORAGE_KEY = "fitvoice-gemini-api-key";
+const GEMINI_MODEL = "gemini-2.5-flash";
+const REQUIRED_STABLE_FRAMES = 4;
+const REP_COOLDOWN_MS = 950;
+const VOICE_COMMAND_COOLDOWN_MS = 2200;
+const MIN_VOICE_CONFIDENCE = 0.35;
 
 const defaultState = {
     reps: 0,
@@ -6,6 +12,7 @@ const defaultState = {
     workouts: 0,
     record: 0,
     calories: 0,
+    aiCoach: null,
     history: [],
     settings: {
         goal: 50,
@@ -27,6 +34,9 @@ let poseFrameId = null;
 let isPoseProcessing = false;
 let movementPhase = "up";
 let lastRepTime = 0;
+let stableDownFrames = 0;
+let stableUpFrames = 0;
+const metricHistory = {};
 
 function getFreshDefaultState() {
     return JSON.parse(JSON.stringify(defaultState));
@@ -41,6 +51,10 @@ const elements = {
     poseCanvas: document.querySelector("#poseCanvas"),
     cameraOverlay: document.querySelector("#cameraOverlay"),
     poseFeedback: document.querySelector("#poseFeedback"),
+    poseQualityText: document.querySelector("#poseQualityText"),
+    poseQualityBar: document.querySelector("#poseQualityBar"),
+    movementPhaseText: document.querySelector("#movementPhaseText"),
+    poseMetricText: document.querySelector("#poseMetricText"),
     voiceTranscript: document.querySelector("#voiceTranscript"),
     startBtn: document.querySelector("#startBtn"),
     pauseBtn: document.querySelector("#pauseBtn"),
@@ -59,11 +73,17 @@ const elements = {
     weekBars: document.querySelector("#weekBars"),
     aiRecommendation: document.querySelector("#aiRecommendation"),
     aiDetail: document.querySelector("#aiDetail"),
+    aiStatus: document.querySelector("#aiStatus"),
+    generateAiBtn: document.querySelector("#generateAiBtn"),
     historyList: document.querySelector("#historyList"),
     clearHistoryBtn: document.querySelector("#clearHistoryBtn"),
     goalInput: document.querySelector("#goalInput"),
     levelSelect: document.querySelector("#levelSelect"),
     routineSelect: document.querySelector("#routineSelect"),
+    geminiApiKeyInput: document.querySelector("#geminiApiKeyInput"),
+    geminiKeyMessage: document.querySelector("#geminiKeyMessage"),
+    saveGeminiKeyBtn: document.querySelector("#saveGeminiKeyBtn"),
+    clearGeminiKeyBtn: document.querySelector("#clearGeminiKeyBtn"),
     heroGoal: document.querySelector("#heroGoal"),
     motivationalPhrase: document.querySelector("#motivationalPhrase")
 };
@@ -113,6 +133,9 @@ function bindEvents() {
     elements.finishBtn.addEventListener("click", finishTraining);
     elements.addManualBtn.addEventListener("click", addManualReps);
     elements.clearHistoryBtn.addEventListener("click", clearHistory);
+    elements.generateAiBtn.addEventListener("click", generateGeminiRecommendation);
+    elements.saveGeminiKeyBtn.addEventListener("click", saveGeminiApiKey);
+    elements.clearGeminiKeyBtn.addEventListener("click", clearGeminiApiKey);
 
     elements.goalInput.addEventListener("input", updateSettings);
     elements.levelSelect.addEventListener("change", updateSettings);
@@ -135,9 +158,13 @@ function setupSpeechRecognition() {
     recognition.onresult = (event) => {
         const lastResult = event.results[event.results.length - 1];
         const transcript = normalizeText(lastResult[0].transcript);
+        const confidence = lastResult[0].confidence || 1;
         elements.voiceTranscript.textContent = `Escuchado: "${transcript}"`;
 
-        processRealtimeCommand(transcript);
+        processSpeechCommand(transcript, {
+            confidence,
+            isFinal: lastResult.isFinal
+        });
     };
 
     recognition.onerror = () => {
@@ -201,7 +228,7 @@ function processVoiceCommand(text) {
     }
 }
 
-function processRealtimeCommand(text) {
+function processSpeechCommand(text, options = {}) {
     const command = getVoiceCommand(text);
 
     if (!command) {
@@ -209,8 +236,20 @@ function processRealtimeCommand(text) {
     }
 
     const now = Date.now();
+    const isDestructiveCommand = command === "reset" || command === "finish";
+    const hasLowConfidence = options.confidence < MIN_VOICE_CONFIDENCE;
 
-    if (command === lastVoiceCommand && now - lastVoiceCommandTime < 1500) {
+    if (isDestructiveCommand && !options.isFinal) {
+        elements.voiceTranscript.textContent = `Comando posible: "${text}". Esperando confirmacion de voz.`;
+        return true;
+    }
+
+    if (hasLowConfidence && !options.isFinal) {
+        elements.voiceTranscript.textContent = "Ruido detectado, comando ignorado.";
+        return false;
+    }
+
+    if (command === lastVoiceCommand && now - lastVoiceCommandTime < VOICE_COMMAND_COOLDOWN_MS) {
         return true;
     }
 
@@ -298,9 +337,10 @@ function pauseTraining() {
 
 function resetCurrentSession() {
     state.reps = 0;
+    state.aiCoach = null;
     timerSeconds = 0;
     lastVoiceCommand = "";
-    movementPhase = "up";
+    resetPoseCounterState();
     stopListening(false);
     stopCamera();
     saveState();
@@ -330,9 +370,10 @@ function finishTraining() {
     state.record = Math.max(state.record, state.reps);
     state.calories = Math.round(state.totalReps * 0.45);
     state.reps = 0;
+    state.aiCoach = null;
     timerSeconds = 0;
     lastVoiceCommand = "";
-    movementPhase = "up";
+    resetPoseCounterState();
 
     stopListening(false);
     stopCamera();
@@ -344,6 +385,7 @@ function finishTraining() {
 
 function setReps(value) {
     state.reps = Math.max(0, Math.min(Number(value), 999));
+    state.aiCoach = null;
     saveState();
     render();
 }
@@ -378,9 +420,146 @@ function updateSettings() {
     state.settings.goal = Math.max(5, Number(elements.goalInput.value) || 50);
     state.settings.level = elements.levelSelect.value;
     state.settings.routine = elements.routineSelect.value;
-    movementPhase = "up";
+    resetPoseCounterState();
+    state.aiCoach = null;
     saveState();
     render();
+}
+
+function saveGeminiApiKey() {
+    const apiKey = elements.geminiApiKeyInput.value.trim();
+
+    if (!apiKey) {
+        elements.aiStatus.textContent = "Pega una API key antes de guardar.";
+        updateGeminiKeyMessage("Pega una API key antes de guardar.", "error");
+        return;
+    }
+
+    localStorage.setItem(GEMINI_KEY_STORAGE_KEY, apiKey);
+    elements.geminiApiKeyInput.value = "";
+    elements.geminiApiKeyInput.placeholder = "Clave guardada en este navegador";
+    elements.aiStatus.textContent = "API key guardada. Ya podes generar recomendaciones con Gemini.";
+    updateGeminiKeyMessage("API key de Gemini ingresada correctamente.", "success");
+}
+
+function clearGeminiApiKey() {
+    localStorage.removeItem(GEMINI_KEY_STORAGE_KEY);
+    elements.geminiApiKeyInput.value = "";
+    elements.geminiApiKeyInput.placeholder = "Pega tu clave solo en tu navegador";
+    elements.aiStatus.textContent = "API key borrada del navegador.";
+    updateGeminiKeyMessage("API key borrada del navegador.", "error");
+}
+
+function updateGeminiKeyMessage(message, type = "") {
+    elements.geminiKeyMessage.textContent = message;
+    elements.geminiKeyMessage.classList.toggle("success", type === "success");
+    elements.geminiKeyMessage.classList.toggle("error", type === "error");
+}
+
+async function generateGeminiRecommendation() {
+    const apiKey = localStorage.getItem(GEMINI_KEY_STORAGE_KEY);
+
+    if (!apiKey) {
+        elements.aiStatus.textContent = "Primero guarda tu API key de Gemini en Configuracion.";
+        location.hash = "#configuracion";
+        return;
+    }
+
+    elements.generateAiBtn.disabled = true;
+    elements.aiStatus.textContent = "Gemini esta analizando tu entrenamiento...";
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                contents: [
+                    {
+                        role: "user",
+                        parts: [
+                            {
+                                text: buildGeminiPrompt()
+                            }
+                        ]
+                    }
+                ],
+                generationConfig: {
+                    temperature: 0.75,
+                    maxOutputTokens: 220,
+                    responseMimeType: "application/json"
+                }
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Gemini respondio con estado ${response.status}`);
+        }
+
+        const data = await response.json();
+        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const recommendation = parseGeminiJson(rawText);
+
+        state.aiCoach = {
+            recommendation: recommendation.recommendation || "Buen entrenamiento.",
+            detail: recommendation.detail || "Segui entrenando con buena tecnica y descanso suficiente.",
+            createdAt: new Date().toISOString()
+        };
+
+        saveState();
+        render();
+        elements.aiStatus.textContent = "Recomendacion generada con Gemini.";
+    } catch (error) {
+        console.error("Error con Gemini.", error);
+        elements.aiStatus.textContent = "No se pudo conectar con Gemini. Revisa la clave, internet o la cuota gratis.";
+    } finally {
+        elements.generateAiBtn.disabled = false;
+    }
+}
+
+function buildGeminiPrompt() {
+    const recentHistory = state.history.slice(0, 6).map((session) => ({
+        ejercicio: session.exercise,
+        repeticiones: session.reps,
+        duracionSegundos: session.seconds,
+        fecha: session.date
+    }));
+
+    return `
+Sos FitVoice AI, un entrenador personal breve, motivador y responsable.
+Genera una recomendacion personalizada en espanol rioplatense para una app fitness.
+
+Datos actuales:
+- Ejercicio seleccionado: ${state.settings.routine}
+- Repeticiones de la sesion actual: ${state.reps}
+- Objetivo diario: ${state.settings.goal}
+- Nivel configurado: ${state.settings.level}
+- Record personal: ${state.record}
+- Total de entrenamientos guardados: ${state.workouts}
+- Total historico de repeticiones: ${state.totalReps}
+- Historial reciente JSON: ${JSON.stringify(recentHistory)}
+
+Reglas:
+- No diagnostiques lesiones ni des consejos medicos.
+- Si el progreso es bajo, anima sin retar.
+- Si supera el objetivo o record, felicita y propone una mejora chica.
+- Responde solamente JSON valido con estas claves:
+{
+  "recommendation": "maximo 90 caracteres",
+  "detail": "una explicacion concreta de 1 o 2 frases"
+}
+`;
+}
+
+function parseGeminiJson(rawText) {
+    const cleanText = rawText
+        .replace(/^```json/i, "")
+        .replace(/^```/i, "")
+        .replace(/```$/i, "")
+        .trim();
+
+    return JSON.parse(cleanText);
 }
 
 function startTimer() {
@@ -465,6 +644,7 @@ function stopCamera() {
 
     isCameraActive = false;
     isPoseProcessing = false;
+    resetPoseCounterState();
     updateCameraStatus(false);
     elements.cameraOverlay.classList.remove("hidden");
 }
@@ -491,6 +671,7 @@ function handlePoseResults(results) {
         });
         analyzeExercise(results.poseLandmarks);
     } else if (isCameraActive) {
+        updatePoseQuality(0, "Cuerpo incompleto", "--");
         elements.poseFeedback.textContent = "No detecto el cuerpo completo. Alejate un poco de la camara.";
     }
 
@@ -500,22 +681,45 @@ function handlePoseResults(results) {
 function analyzeExercise(landmarks) {
     const routine = state.settings.routine;
     const repInfo = getExerciseRepInfo(routine, landmarks);
+    const frameQuality = getBodyFrameQuality(landmarks);
 
     if (!repInfo) {
+        updatePoseQuality(0, "Cuerpo incompleto", "--");
         elements.poseFeedback.textContent = "Este ejercicio usa deteccion experimental. Proba Sentadillas, Flexiones o Estocadas.";
         return;
     }
 
-    elements.poseFeedback.textContent = repInfo.feedback;
+    const finalQuality = Math.min(repInfo.quality, frameQuality.score);
+    updatePoseQuality(finalQuality, getQualityLabel(finalQuality), repInfo.metricText);
+    elements.poseFeedback.textContent = frameQuality.feedback || repInfo.feedback;
 
-    if (movementPhase === "up" && repInfo.isDown) {
-        movementPhase = "down";
+    if (finalQuality < 0.42) {
+        stableDownFrames = 0;
+        stableUpFrames = 0;
         return;
     }
 
-    if (movementPhase === "down" && repInfo.isUp) {
+    if (repInfo.isDown) {
+        stableDownFrames += 1;
+        stableUpFrames = 0;
+    } else if (repInfo.isUp) {
+        stableUpFrames += 1;
+        stableDownFrames = 0;
+    } else {
+        stableDownFrames = 0;
+        stableUpFrames = 0;
+    }
+
+    if (movementPhase === "up" && stableDownFrames >= REQUIRED_STABLE_FRAMES) {
+        movementPhase = "down";
+        updateMovementPhase();
+        return;
+    }
+
+    if (movementPhase === "down" && stableUpFrames >= REQUIRED_STABLE_FRAMES) {
         addCameraRep();
         movementPhase = "up";
+        updateMovementPhase();
     }
 }
 
@@ -546,13 +750,16 @@ function getLegRepInfo(routine, landmarks) {
         return null;
     }
 
-    const kneeAngle = getAngle(side.first, side.middle, side.last);
+    const kneeAngle = smoothMetric("leg", getAngle(side.first, side.middle, side.last));
     const downLimit = routine === "Estocadas" ? 115 : 120;
     const upLimit = 158;
 
     return {
         isDown: kneeAngle < downLimit,
         isUp: kneeAngle > upLimit,
+        quality: side.quality,
+        qualityLabel: getQualityLabel(side.quality),
+        metricText: `Rodilla: ${Math.round(kneeAngle)} grados`,
         feedback: kneeAngle < downLimit
             ? "Bajada detectada. Ahora subi para contar la repeticion."
             : `Angulo de rodilla: ${Math.round(kneeAngle)} grados.`
@@ -566,11 +773,14 @@ function getPushupRepInfo(landmarks) {
         return null;
     }
 
-    const elbowAngle = getAngle(side.first, side.middle, side.last);
+    const elbowAngle = smoothMetric("pushup", getAngle(side.first, side.middle, side.last));
 
     return {
         isDown: elbowAngle < 95,
         isUp: elbowAngle > 155,
+        quality: side.quality,
+        qualityLabel: getQualityLabel(side.quality),
+        metricText: `Codo: ${Math.round(elbowAngle)} grados`,
         feedback: elbowAngle < 95
             ? "Flexion abajo detectada. Extende brazos para sumar."
             : `Angulo de codo: ${Math.round(elbowAngle)} grados.`
@@ -584,11 +794,14 @@ function getCoreRepInfo(landmarks) {
         return null;
     }
 
-    const torsoAngle = getAngle(side.first, side.middle, side.last);
+    const torsoAngle = smoothMetric("core", getAngle(side.first, side.middle, side.last));
 
     return {
         isDown: torsoAngle > 138,
         isUp: torsoAngle < 105,
+        quality: side.quality,
+        qualityLabel: getQualityLabel(side.quality),
+        metricText: `Torso: ${Math.round(torsoAngle)} grados`,
         feedback: torsoAngle < 105
             ? "Abdominal arriba detectado. Baja controlado."
             : `Angulo de torso: ${Math.round(torsoAngle)} grados.`
@@ -603,28 +816,102 @@ function getBurpeeRepInfo(landmarks) {
     const leftHip = landmarks[23];
     const rightHip = landmarks[24];
 
-    if (!hasVisibility([leftWrist, rightWrist, leftShoulder, rightShoulder, leftHip, rightHip])) {
+    const points = [leftWrist, rightWrist, leftShoulder, rightShoulder, leftHip, rightHip];
+
+    if (!hasVisibility(points)) {
         return null;
     }
 
     const wristsHigh = leftWrist.y < leftShoulder.y && rightWrist.y < rightShoulder.y;
     const hipsLow = leftHip.y > leftShoulder.y + 0.22 && rightHip.y > rightShoulder.y + 0.22;
+    const quality = averageVisibility(points);
 
     return {
         isDown: hipsLow,
         isUp: wristsHigh,
+        quality,
+        qualityLabel: getQualityLabel(quality),
+        metricText: wristsHigh ? "Manos arriba" : "Cadera baja",
         feedback: wristsHigh ? "Salto arriba detectado." : "Burpee: baja y despues subi con manos arriba."
     };
+}
+
+function getBodyFrameQuality(landmarks) {
+    const keyIndexes = [11, 12, 15, 16, 23, 24, 25, 26, 27, 28];
+    const requiredIndexes = getRequiredFrameIndexes(state.settings.routine);
+    const points = keyIndexes
+        .map((index) => landmarks[index])
+        .filter((point) => point && point.visibility > 0.45);
+    const requiredPoints = requiredIndexes
+        .map((index) => landmarks[index])
+        .filter((point) => point && point.visibility > 0.45);
+
+    if (requiredPoints.length < Math.ceil(requiredIndexes.length * 0.7)) {
+        return {
+            score: 0.35,
+            feedback: "Faltan puntos clave del ejercicio. Ajusta la camara o mejora la luz."
+        };
+    }
+
+    const xs = requiredPoints.map((point) => point.x);
+    const ys = requiredPoints.map((point) => point.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const width = maxX - minX;
+    const height = maxY - minY;
+    const isLandscapeCamera = elements.poseVideo.videoWidth >= elements.poseVideo.videoHeight;
+
+    if (width < 0.07 || height < 0.12) {
+        return {
+            score: 0.43,
+            feedback: "Estas lejos, pero puedo intentar contar si los puntos clave se ven."
+        };
+    }
+
+    const horizontalMargin = isLandscapeCamera ? 0.005 : 0.03;
+    const verticalMargin = isLandscapeCamera ? 0.01 : 0.03;
+
+    if (width > 0.995 || height > 0.998 || minX < horizontalMargin || maxX > 1 - horizontalMargin || minY < verticalMargin || maxY > 1 - verticalMargin) {
+        return {
+            score: 0.5,
+            feedback: "Puede haber algun recorte. Si no cuenta, alejate un poco."
+        };
+    }
+
+    return {
+        score: 1,
+        feedback: ""
+    };
+}
+
+function getRequiredFrameIndexes(routine) {
+    if (routine === "Sentadillas" || routine === "Estocadas") {
+        return [23, 24, 25, 26, 27, 28];
+    }
+
+    if (routine === "Flexiones") {
+        return [11, 12, 13, 14, 15, 16, 23, 24];
+    }
+
+    if (routine === "Abdominales") {
+        return [11, 12, 23, 24, 25, 26];
+    }
+
+    return [11, 12, 15, 16, 23, 24, 25, 26];
 }
 
 function addCameraRep() {
     const now = Date.now();
 
-    if (now - lastRepTime < 750) {
+    if (now - lastRepTime < REP_COOLDOWN_MS) {
         return;
     }
 
     lastRepTime = now;
+    stableDownFrames = 0;
+    stableUpFrames = 0;
     setReps(state.reps + 1);
     playRepSound();
 }
@@ -643,8 +930,55 @@ function chooseVisibleTriplet(landmarks, leftIndexes, rightIndexes) {
     return {
         first: points[0],
         middle: points[1],
-        last: points[2]
+        last: points[2],
+        quality: averageVisibility(points)
     };
+}
+
+function smoothMetric(key, value) {
+    metricHistory[key] = metricHistory[key] || [];
+    metricHistory[key].push(value);
+    metricHistory[key] = metricHistory[key].slice(-6);
+
+    const total = metricHistory[key].reduce((sum, metric) => sum + metric, 0);
+    return total / metricHistory[key].length;
+}
+
+function resetPoseCounterState() {
+    movementPhase = "up";
+    stableDownFrames = 0;
+    stableUpFrames = 0;
+    lastRepTime = 0;
+    Object.keys(metricHistory).forEach((key) => {
+        delete metricHistory[key];
+    });
+    updateMovementPhase();
+    updatePoseQuality(0, "Esperando camara", "--");
+}
+
+function updateMovementPhase() {
+    elements.movementPhaseText.textContent = movementPhase === "down"
+        ? "Fase: abajo"
+        : "Fase: arriba";
+}
+
+function updatePoseQuality(quality, label, metricText) {
+    const percentage = Math.round(Math.max(0, Math.min(quality, 1)) * 100);
+    elements.poseQualityText.textContent = label;
+    elements.poseQualityBar.style.width = `${percentage}%`;
+    elements.poseMetricText.textContent = metricText === "--" ? "Angulo: --" : metricText;
+}
+
+function getQualityLabel(quality) {
+    if (quality >= 0.75) {
+        return "Alta";
+    }
+
+    if (quality >= 0.52) {
+        return "Media";
+    }
+
+    return "Baja";
 }
 
 function averageVisibility(points) {
@@ -674,6 +1008,15 @@ function render() {
     elements.routineSelect.value = state.settings.routine;
     elements.currentExercise.textContent = state.settings.routine;
     elements.heroGoal.textContent = state.settings.goal;
+    elements.geminiApiKeyInput.placeholder = localStorage.getItem(GEMINI_KEY_STORAGE_KEY)
+        ? "Clave guardada en este navegador"
+        : "Pega tu clave solo en tu navegador";
+    updateGeminiKeyMessage(
+        localStorage.getItem(GEMINI_KEY_STORAGE_KEY)
+            ? "API key de Gemini ingresada correctamente."
+            : "Todavia no guardaste una API key.",
+        localStorage.getItem(GEMINI_KEY_STORAGE_KEY) ? "success" : ""
+    );
 
     elements.totalWorkouts.textContent = state.workouts;
     elements.personalRecord.textContent = state.record;
@@ -760,6 +1103,14 @@ function renderHistory() {
 }
 
 function renderRecommendation() {
+    if (state.aiCoach) {
+        elements.aiRecommendation.textContent = state.aiCoach.recommendation;
+        elements.aiDetail.textContent = state.aiCoach.detail;
+        elements.motivationalPhrase.textContent = state.aiCoach.recommendation;
+        elements.aiStatus.textContent = "Recomendacion generada con Gemini.";
+        return;
+    }
+
     const weeklyTotal = getWeeklyData().reduce((sum, day) => sum + day.reps, 0);
     const goal = state.settings.goal;
     let recommendation = "Completa tu primer entrenamiento.";
@@ -785,6 +1136,9 @@ function renderRecommendation() {
     elements.aiRecommendation.textContent = recommendation;
     elements.aiDetail.textContent = detail;
     elements.motivationalPhrase.textContent = recommendation;
+    elements.aiStatus.textContent = localStorage.getItem(GEMINI_KEY_STORAGE_KEY)
+        ? "Podes pedir una recomendacion mejorada con Gemini."
+        : "Configura tu API key de Gemini para activar recomendaciones con IA.";
 }
 
 function getPerformanceLevel() {
