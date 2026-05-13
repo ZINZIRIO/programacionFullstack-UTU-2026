@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitVoice AI | Entrenador personal inteligente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loader" class="loader-screen">
+        <div class="pulse-ring"></div>
+        <i class="fa-solid fa-dumbbell loader-icon"></i>
+        <p>Cargando FitVoice AI...</p>
+    </div>
+
+    <nav class="navbar navbar-expand-lg fixed-top app-navbar">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#inicio">
+                <span class="brand-icon"><i class="fa-solid fa-wave-square"></i></span>
+                <span>FitVoice AI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal" aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="menuPrincipal">
+                <ul class="navbar-nav ms-auto gap-lg-2">
+                    <li class="nav-item"><a class="nav-link" href="#inicio">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#entrenamiento">Entrenar</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#configuracion">Configuracion</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section id="inicio" class="hero-section section-spacing">
+            <div class="container">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-7">
+                        <span class="section-badge">Entrenador inteligente por voz</span>
+                        <h1>FitVoice AI</h1>
+                        <p class="hero-copy">
+                            Controla tus repeticiones hablando, guarda tu progreso y recibe recomendaciones
+                            automaticas como si entrenaras con un coach digital.
+                        </p>
+                        <div class="d-flex flex-wrap gap-3">
+                            <a href="#entrenamiento" class="btn btn-neon btn-lg">
+                                <i class="fa-solid fa-play"></i>
+                                Comenzar
+                            </a>
+                            <a href="#dashboard" class="btn btn-outline-light btn-lg">
+                                <i class="fa-solid fa-chart-line"></i>
+                                Ver progreso
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="coach-panel glass-card">
+                            <div class="avatar-ai">
+                                <i class="fa-solid fa-microphone-lines"></i>
+                            </div>
+                            <div>
+                                <p class="panel-label">Estado del coach</p>
+                                <h2 id="motivationalPhrase">Listo para entrenar</h2>
+                            </div>
+                            <div class="metric-row">
+                                <span>Meta diaria</span>
+                                <strong><span id="heroGoal">50</span> reps</strong>
+                            </div>
+                            <div class="mini-equalizer" aria-hidden="true">
+                                <span></span><span></span><span></span><span></span><span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="entrenamiento" class="section-spacing">
+            <div class="container">
+                <div class="section-title">
+                    <span class="section-badge">Modo entrenamiento</span>
+                    <h2>Registra repeticiones con tu voz</h2>
+                </div>
+
+                <div class="row g-4 align-items-stretch">
+                    <div class="col-lg-7">
+                        <div class="training-console glass-card h-100">
+                            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                                <div>
+                                    <p class="panel-label">Ejercicio actual</p>
+                                    <h3 id="currentExercise">Sentadillas</h3>
+                                </div>
+                                <span id="micStatus" class="status-pill muted">
+                                    <i class="fa-solid fa-microphone-slash"></i>
+                                    Microfono apagado
+                                </span>
+                            </div>
+
+                            <div class="counter-orbit">
+                                <div class="counter-circle">
+                                    <span id="repCounter">0</span>
+                                    <small>repeticiones</small>
+                                </div>
+                            </div>
+
+                            <p id="voiceTranscript" class="transcript">Deci "empezar" o toca el microfono para iniciar.</p>
+
+                            <div class="control-grid">
+                                <button id="startBtn" class="btn btn-neon" type="button">
+                                    <i class="fa-solid fa-microphone"></i>
+                                    Escuchar
+                                </button>
+                                <button id="pauseBtn" class="btn btn-glass" type="button">
+                                    <i class="fa-solid fa-pause"></i>
+                                    Pausa
+                                </button>
+                                <button id="resetBtn" class="btn btn-glass" type="button">
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                    Reiniciar
+                                </button>
+                                <button id="finishBtn" class="btn btn-finish" type="button">
+                                    <i class="fa-solid fa-check"></i>
+                                    Termine
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="glass-card h-100">
+                            <p class="panel-label">Temporizador</p>
+                            <div class="timer-display" id="timerDisplay">00:00</div>
+                            <div class="progress mb-4" role="progressbar" aria-label="Progreso de objetivo">
+                                <div id="goalProgress" class="progress-bar" style="width: 0%"></div>
+                            </div>
+
+                            <p class="panel-label">Comandos disponibles</p>
+                            <div class="command-list">
+                                <span>empezar</span>
+                                <span>pausa / pausar</span>
+                                <span>reiniciar</span>
+                                <span>terminar / guardar</span>
+                                <span>1, 2, 15, 20...</span>
+                            </div>
+
+                            <div class="manual-add">
+                                <label for="manualReps" class="form-label">Agregar repeticiones manualmente</label>
+                                <div class="input-group">
+                                    <input id="manualReps" type="number" class="form-control" min="1" max="999" value="1">
+                                    <button id="addManualBtn" class="btn btn-neon" type="button">Sumar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="dashboard" class="section-spacing">
+            <div class="container">
+                <div class="section-title">
+                    <span class="section-badge">Dashboard</span>
+                    <h2>Tu progreso queda guardado</h2>
+                </div>
+
+                <div class="row g-3 stats-grid">
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card">
+                            <i class="fa-solid fa-dumbbell"></i>
+                            <span>Total ejercicios</span>
+                            <strong id="totalWorkouts">0</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card">
+                            <i class="fa-solid fa-trophy"></i>
+                            <span>Record personal</span>
+                            <strong id="personalRecord">0</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card">
+                            <i class="fa-solid fa-fire"></i>
+                            <span>Calorias</span>
+                            <strong id="calories">0</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>Nivel</span>
+                            <strong id="performanceLevel">Inicial</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mt-1">
+                    <div class="col-lg-6">
+                        <div class="glass-card h-100">
+                            <div class="d-flex justify-content-between align-items-center gap-3">
+                                <div>
+                                    <p class="panel-label">Progreso semanal</p>
+                                    <h3><span id="weeklyTotal">0</span> repeticiones</h3>
+                                </div>
+                                <i class="fa-solid fa-calendar-week dashboard-icon"></i>
+                            </div>
+                            <div class="week-bars" id="weekBars"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="glass-card h-100">
+                            <p class="panel-label">Recomendacion inteligente</p>
+                            <h3 id="aiRecommendation">Completa tu primer entrenamiento.</h3>
+                            <p class="soft-text" id="aiDetail">El sistema analizara tu historial local para sugerir intensidad, descanso o nuevos objetivos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card mt-4">
+                    <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+                        <div>
+                            <p class="panel-label">Historial</p>
+                            <h3>Ultimas sesiones</h3>
+                        </div>
+                        <button id="clearHistoryBtn" class="btn btn-glass btn-sm" type="button">
+                            <i class="fa-solid fa-trash"></i>
+                            Limpiar historial
+                        </button>
+                    </div>
+                    <div id="historyList" class="history-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="configuracion" class="section-spacing">
+            <div class="container">
+                <div class="section-title">
+                    <span class="section-badge">Configuracion</span>
+                    <h2>Personaliza tu rutina</h2>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="glass-card h-100">
+                            <label for="goalInput" class="form-label">Objetivo diario de repeticiones</label>
+                            <input id="goalInput" type="number" class="form-control" min="5" max="999" value="50">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="glass-card h-100">
+                            <label for="levelSelect" class="form-label">Nivel de entrenamiento</label>
+                            <select id="levelSelect" class="form-select">
+                                <option value="Inicial">Inicial</option>
+                                <option value="Intermedio">Intermedio</option>
+                                <option value="Avanzado">Avanzado</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="glass-card h-100">
+                            <label for="routineSelect" class="form-label">Rutina principal</label>
+                            <select id="routineSelect" class="form-select">
+                                <option value="Sentadillas">Sentadillas</option>
+                                <option value="Flexiones">Flexiones</option>
+                                <option value="Abdominales">Abdominales</option>
+                                <option value="Burpees">Burpees</option>
+                                <option value="Estocadas">Estocadas</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card mt-4 presentation-notes">
+                    <p class="panel-label">Notas para explicar en clase</p>
+                    <ul>
+                        <li>Bootstrap se usa con container, row y col para adaptar las secciones a celulares, tablets y laptops.</li>
+                        <li>La Web Speech API escucha palabras, detecta numeros y comandos, y actualiza el contador.</li>
+                        <li>LocalStorage guarda configuracion, repeticiones, records e historial aunque se cierre el navegador.</li>
+                        <li>El responsive design se completa con media queries comentadas en el archivo CSS.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <div class="container d-flex justify-content-between align-items-center gap-3 flex-wrap">
+            <span>FitVoice AI - Entrenamiento inteligente local</span>
+            <span>HTML5 + CSS3 + Bootstrap 5 + JavaScript</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
