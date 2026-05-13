@@ -19,9 +19,14 @@ let recognition = null;
 let isListening = false;
 let timerSeconds = 0;
 let timerInterval = null;
-let lastRealtimeNumber = null;
 let lastVoiceCommand = "";
 let lastVoiceCommandTime = 0;
+let pose = null;
+let isCameraActive = false;
+let poseFrameId = null;
+let isPoseProcessing = false;
+let movementPhase = "up";
+let lastRepTime = 0;
 
 function getFreshDefaultState() {
     return JSON.parse(JSON.stringify(defaultState));
@@ -31,6 +36,11 @@ const elements = {
     loader: document.querySelector("#loader"),
     repCounter: document.querySelector("#repCounter"),
     micStatus: document.querySelector("#micStatus"),
+    cameraStatus: document.querySelector("#cameraStatus"),
+    poseVideo: document.querySelector("#poseVideo"),
+    poseCanvas: document.querySelector("#poseCanvas"),
+    cameraOverlay: document.querySelector("#cameraOverlay"),
+    poseFeedback: document.querySelector("#poseFeedback"),
     voiceTranscript: document.querySelector("#voiceTranscript"),
     startBtn: document.querySelector("#startBtn"),
     pauseBtn: document.querySelector("#pauseBtn"),
@@ -60,6 +70,7 @@ const elements = {
 
 document.addEventListener("DOMContentLoaded", () => {
     setupSpeechRecognition();
+    setupPoseDetection();
     bindEvents();
     render();
 
@@ -96,7 +107,7 @@ function saveState() {
 }
 
 function bindEvents() {
-    elements.startBtn.addEventListener("click", startListening);
+    elements.startBtn.addEventListener("click", startTraining);
     elements.pauseBtn.addEventListener("click", pauseTraining);
     elements.resetBtn.addEventListener("click", resetCurrentSession);
     elements.finishBtn.addEventListener("click", finishTraining);
@@ -112,8 +123,7 @@ function setupSpeechRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-        elements.voiceTranscript.textContent = "Tu navegador no soporta Web Speech API. Podes usar el contador manual.";
-        elements.startBtn.disabled = true;
+        elements.voiceTranscript.textContent = "Tu navegador no soporta Web Speech API. La camara puede contar repeticiones igual.";
         return;
     }
 
@@ -127,22 +137,13 @@ function setupSpeechRecognition() {
         const transcript = normalizeText(lastResult[0].transcript);
         elements.voiceTranscript.textContent = `Escuchado: "${transcript}"`;
 
-        if (processRealtimeCommand(transcript)) {
-            lastRealtimeNumber = null;
-            return;
-        }
-
-        if (lastResult.isFinal) {
-            processVoiceCommand(transcript);
-            lastRealtimeNumber = null;
-        } else {
-            processRealtimeNumber(transcript);
-        }
+        processRealtimeCommand(transcript);
     };
 
     recognition.onerror = () => {
         elements.voiceTranscript.textContent = "No se pudo acceder al microfono. Revisar permisos del navegador.";
-        stopListening(false);
+        isListening = false;
+        updateMicStatus(false);
     };
 
     recognition.onend = () => {
@@ -152,13 +153,35 @@ function setupSpeechRecognition() {
     };
 }
 
+function setupPoseDetection() {
+    if (!window.Pose) {
+        elements.poseFeedback.textContent = "No se pudo cargar MediaPipe Pose. Revisa la conexion a internet.";
+        elements.startBtn.disabled = true;
+        return;
+    }
+
+    pose = new Pose({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+    });
+
+    pose.setOptions({
+        modelComplexity: 1,
+        smoothLandmarks: true,
+        enableSegmentation: false,
+        minDetectionConfidence: 0.55,
+        minTrackingConfidence: 0.55
+    });
+
+    pose.onResults(handlePoseResults);
+}
+
 function processVoiceCommand(text) {
     const normalizedText = normalizeText(text);
 
     const command = getVoiceCommand(normalizedText);
 
     if (command === "start") {
-        startListening();
+        startTraining();
         return;
     }
 
@@ -176,19 +199,12 @@ function processVoiceCommand(text) {
         finishTraining();
         return;
     }
-
-    const spokenNumber = extractNumber(normalizedText);
-
-    if (spokenNumber !== null && spokenNumber !== state.reps) {
-        setReps(spokenNumber);
-        playRepSound();
-    }
 }
 
 function processRealtimeCommand(text) {
     const command = getVoiceCommand(text);
 
-    if (!command || command === "start") {
+    if (!command) {
         return false;
     }
 
@@ -230,64 +246,22 @@ function hasAnyWord(text, words) {
     return words.some((word) => new RegExp(`\\b${word}\\b`).test(text));
 }
 
-function processRealtimeNumber(text) {
-    const spokenNumber = extractNumber(text);
-
-    if (spokenNumber === null || spokenNumber === lastRealtimeNumber || spokenNumber === state.reps) {
-        return;
-    }
-
-    lastRealtimeNumber = spokenNumber;
-    setReps(spokenNumber);
-    playRepSound();
-}
-
-function extractNumber(text) {
-    const directNumbers = text.match(/\d+/g);
-
-    if (directNumbers) {
-        return Number(directNumbers[directNumbers.length - 1]);
-    }
-
-    const numberWords = {
-        uno: 1,
-        un: 1,
-        una: 1,
-        dos: 2,
-        tres: 3,
-        cuatro: 4,
-        cinco: 5,
-        seis: 6,
-        siete: 7,
-        ocho: 8,
-        nueve: 9,
-        diez: 10,
-        once: 11,
-        doce: 12,
-        trece: 13,
-        catorce: 14,
-        quince: 15,
-        dieciseis: 16,
-        diecisiete: 17,
-        dieciocho: 18,
-        diecinueve: 19,
-        veinte: 20
-    };
-
-    const words = text.split(/\s+/);
-    const foundWord = words.findLast
-        ? words.findLast((word) => numberWords[word] !== undefined)
-        : [...words].reverse().find((word) => numberWords[word] !== undefined);
-
-    return foundWord ? numberWords[foundWord] : null;
-}
-
 function normalizeText(text) {
     return text
         .trim()
         .toLowerCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "");
+}
+
+async function startTraining() {
+    startListening();
+    const cameraStarted = await startCamera();
+
+    if (cameraStarted) {
+        startTimer();
+        elements.voiceTranscript.textContent = "Entrenamiento activo. Usa voz para pausar, reiniciar o terminar.";
+    }
 }
 
 function startListening() {
@@ -297,9 +271,8 @@ function startListening() {
 
     isListening = true;
     recognition.start();
-    startTimer();
     updateMicStatus(true);
-    elements.voiceTranscript.textContent = "Escuchando... deci un numero o un comando.";
+    elements.voiceTranscript.textContent = "Escuchando comandos de voz.";
 }
 
 function stopListening(keepTimer = true) {
@@ -317,19 +290,23 @@ function stopListening(keepTimer = true) {
 }
 
 function pauseTraining() {
-    stopListening(false);
+    stopTimer();
+    stopCamera();
     elements.voiceTranscript.textContent = "Entrenamiento en pausa.";
+    elements.poseFeedback.textContent = "Pausado. Deci empezar o toca iniciar para continuar.";
 }
 
 function resetCurrentSession() {
     state.reps = 0;
     timerSeconds = 0;
-    lastRealtimeNumber = null;
     lastVoiceCommand = "";
+    movementPhase = "up";
     stopListening(false);
+    stopCamera();
     saveState();
     render();
     elements.voiceTranscript.textContent = "Sesion reiniciada.";
+    elements.poseFeedback.textContent = "Contador en cero. Inicia la camara para volver a detectar.";
 }
 
 function finishTraining() {
@@ -354,13 +331,15 @@ function finishTraining() {
     state.calories = Math.round(state.totalReps * 0.45);
     state.reps = 0;
     timerSeconds = 0;
-    lastRealtimeNumber = null;
     lastVoiceCommand = "";
+    movementPhase = "up";
 
     stopListening(false);
+    stopCamera();
     saveState();
     render();
     elements.voiceTranscript.textContent = "Sesion guardada en el historial.";
+    elements.poseFeedback.textContent = "Sesion finalizada y guardada.";
 }
 
 function setReps(value) {
@@ -399,6 +378,7 @@ function updateSettings() {
     state.settings.goal = Math.max(5, Number(elements.goalInput.value) || 50);
     state.settings.level = elements.levelSelect.value;
     state.settings.routine = elements.routineSelect.value;
+    movementPhase = "up";
     saveState();
     render();
 }
@@ -417,6 +397,274 @@ function startTimer() {
 function stopTimer() {
     clearInterval(timerInterval);
     timerInterval = null;
+}
+
+async function startCamera() {
+    if (isCameraActive) {
+        return isCameraActive;
+    }
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                facingMode: "user"
+            },
+            audio: false
+        });
+
+        elements.poseVideo.srcObject = stream;
+        await elements.poseVideo.play();
+        isCameraActive = true;
+        updateCameraStatus(true);
+        elements.cameraOverlay.classList.add("hidden");
+        elements.poseFeedback.textContent = "Camara activa. Colocate de cuerpo completo frente a la pantalla.";
+        processPoseFrame();
+        return true;
+    } catch (error) {
+        console.error("No se pudo iniciar la camara.", error);
+        elements.poseFeedback.textContent = "No se pudo acceder a la camara. Revisa permisos del navegador.";
+        updateCameraStatus(false);
+        return false;
+    }
+}
+
+async function processPoseFrame() {
+    if (!isCameraActive || !pose) {
+        return;
+    }
+
+    if (!isPoseProcessing && elements.poseVideo.readyState >= 2) {
+        isPoseProcessing = true;
+
+        try {
+            await pose.send({ image: elements.poseVideo });
+        } catch (error) {
+            console.error("Error procesando pose.", error);
+        } finally {
+            isPoseProcessing = false;
+        }
+    }
+
+    poseFrameId = requestAnimationFrame(processPoseFrame);
+}
+
+function stopCamera() {
+    if (poseFrameId) {
+        cancelAnimationFrame(poseFrameId);
+        poseFrameId = null;
+    }
+
+    const stream = elements.poseVideo.srcObject;
+
+    if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+        elements.poseVideo.srcObject = null;
+    }
+
+    isCameraActive = false;
+    isPoseProcessing = false;
+    updateCameraStatus(false);
+    elements.cameraOverlay.classList.remove("hidden");
+}
+
+function handlePoseResults(results) {
+    const canvas = elements.poseCanvas;
+    const canvasContext = canvas.getContext("2d");
+    canvas.width = results.image.width;
+    canvas.height = results.image.height;
+
+    canvasContext.save();
+    canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+    canvasContext.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+
+    if (results.poseLandmarks) {
+        drawConnectors(canvasContext, results.poseLandmarks, POSE_CONNECTIONS, {
+            color: "rgba(53, 255, 145, 0.85)",
+            lineWidth: 4
+        });
+        drawLandmarks(canvasContext, results.poseLandmarks, {
+            color: "#21a8ff",
+            lineWidth: 2,
+            radius: 4
+        });
+        analyzeExercise(results.poseLandmarks);
+    } else if (isCameraActive) {
+        elements.poseFeedback.textContent = "No detecto el cuerpo completo. Alejate un poco de la camara.";
+    }
+
+    canvasContext.restore();
+}
+
+function analyzeExercise(landmarks) {
+    const routine = state.settings.routine;
+    const repInfo = getExerciseRepInfo(routine, landmarks);
+
+    if (!repInfo) {
+        elements.poseFeedback.textContent = "Este ejercicio usa deteccion experimental. Proba Sentadillas, Flexiones o Estocadas.";
+        return;
+    }
+
+    elements.poseFeedback.textContent = repInfo.feedback;
+
+    if (movementPhase === "up" && repInfo.isDown) {
+        movementPhase = "down";
+        return;
+    }
+
+    if (movementPhase === "down" && repInfo.isUp) {
+        addCameraRep();
+        movementPhase = "up";
+    }
+}
+
+function getExerciseRepInfo(routine, landmarks) {
+    if (routine === "Sentadillas" || routine === "Estocadas") {
+        return getLegRepInfo(routine, landmarks);
+    }
+
+    if (routine === "Flexiones") {
+        return getPushupRepInfo(landmarks);
+    }
+
+    if (routine === "Abdominales") {
+        return getCoreRepInfo(landmarks);
+    }
+
+    if (routine === "Burpees") {
+        return getBurpeeRepInfo(landmarks);
+    }
+
+    return null;
+}
+
+function getLegRepInfo(routine, landmarks) {
+    const side = chooseVisibleTriplet(landmarks, [23, 25, 27], [24, 26, 28]);
+
+    if (!side) {
+        return null;
+    }
+
+    const kneeAngle = getAngle(side.first, side.middle, side.last);
+    const downLimit = routine === "Estocadas" ? 115 : 120;
+    const upLimit = 158;
+
+    return {
+        isDown: kneeAngle < downLimit,
+        isUp: kneeAngle > upLimit,
+        feedback: kneeAngle < downLimit
+            ? "Bajada detectada. Ahora subi para contar la repeticion."
+            : `Angulo de rodilla: ${Math.round(kneeAngle)} grados.`
+    };
+}
+
+function getPushupRepInfo(landmarks) {
+    const side = chooseVisibleTriplet(landmarks, [11, 13, 15], [12, 14, 16]);
+
+    if (!side) {
+        return null;
+    }
+
+    const elbowAngle = getAngle(side.first, side.middle, side.last);
+
+    return {
+        isDown: elbowAngle < 95,
+        isUp: elbowAngle > 155,
+        feedback: elbowAngle < 95
+            ? "Flexion abajo detectada. Extende brazos para sumar."
+            : `Angulo de codo: ${Math.round(elbowAngle)} grados.`
+    };
+}
+
+function getCoreRepInfo(landmarks) {
+    const side = chooseVisibleTriplet(landmarks, [11, 23, 25], [12, 24, 26]);
+
+    if (!side) {
+        return null;
+    }
+
+    const torsoAngle = getAngle(side.first, side.middle, side.last);
+
+    return {
+        isDown: torsoAngle > 138,
+        isUp: torsoAngle < 105,
+        feedback: torsoAngle < 105
+            ? "Abdominal arriba detectado. Baja controlado."
+            : `Angulo de torso: ${Math.round(torsoAngle)} grados.`
+    };
+}
+
+function getBurpeeRepInfo(landmarks) {
+    const leftWrist = landmarks[15];
+    const rightWrist = landmarks[16];
+    const leftShoulder = landmarks[11];
+    const rightShoulder = landmarks[12];
+    const leftHip = landmarks[23];
+    const rightHip = landmarks[24];
+
+    if (!hasVisibility([leftWrist, rightWrist, leftShoulder, rightShoulder, leftHip, rightHip])) {
+        return null;
+    }
+
+    const wristsHigh = leftWrist.y < leftShoulder.y && rightWrist.y < rightShoulder.y;
+    const hipsLow = leftHip.y > leftShoulder.y + 0.22 && rightHip.y > rightShoulder.y + 0.22;
+
+    return {
+        isDown: hipsLow,
+        isUp: wristsHigh,
+        feedback: wristsHigh ? "Salto arriba detectado." : "Burpee: baja y despues subi con manos arriba."
+    };
+}
+
+function addCameraRep() {
+    const now = Date.now();
+
+    if (now - lastRepTime < 750) {
+        return;
+    }
+
+    lastRepTime = now;
+    setReps(state.reps + 1);
+    playRepSound();
+}
+
+function chooseVisibleTriplet(landmarks, leftIndexes, rightIndexes) {
+    const leftPoints = leftIndexes.map((index) => landmarks[index]);
+    const rightPoints = rightIndexes.map((index) => landmarks[index]);
+    const leftVisible = averageVisibility(leftPoints);
+    const rightVisible = averageVisibility(rightPoints);
+    const points = leftVisible >= rightVisible ? leftPoints : rightPoints;
+
+    if (!hasVisibility(points)) {
+        return null;
+    }
+
+    return {
+        first: points[0],
+        middle: points[1],
+        last: points[2]
+    };
+}
+
+function averageVisibility(points) {
+    return points.reduce((sum, point) => sum + (point.visibility || 0), 0) / points.length;
+}
+
+function hasVisibility(points) {
+    return points.every((point) => point && (point.visibility === undefined || point.visibility > 0.45));
+}
+
+function getAngle(firstPoint, middlePoint, lastPoint) {
+    const radians = Math.atan2(lastPoint.y - middlePoint.y, lastPoint.x - middlePoint.x)
+        - Math.atan2(firstPoint.y - middlePoint.y, firstPoint.x - middlePoint.x);
+    let angle = Math.abs(radians * 180 / Math.PI);
+
+    if (angle > 180) {
+        angle = 360 - angle;
+    }
+
+    return angle;
 }
 
 function render() {
@@ -561,6 +809,14 @@ function updateMicStatus(active) {
     elements.micStatus.innerHTML = active
         ? `<i class="fa-solid fa-microphone"></i> Microfono activo`
         : `<i class="fa-solid fa-microphone-slash"></i> Microfono apagado`;
+}
+
+function updateCameraStatus(active) {
+    elements.cameraStatus.classList.toggle("active", active);
+    elements.cameraStatus.classList.toggle("muted", !active);
+    elements.cameraStatus.innerHTML = active
+        ? `<i class="fa-solid fa-video"></i> Camara activa`
+        : `<i class="fa-solid fa-video-slash"></i> Camara apagada`;
 }
 
 function formatDuration(totalSeconds) {
