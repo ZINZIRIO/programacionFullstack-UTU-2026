@@ -1,3 +1,7 @@
+// NO ME FUE SUFICIENTE CON EL VIDEO PROPORCIONADO LE PEDI A LA IA QUE ME AYUDE A HACERLOS UNO A UNO
+// ENTENDIENDO SU UTILIDAD Y FUNCIONAMIENTO DE CADA UNO.
+
+
 // hola mundo
 
 alert("Hola mundo");
@@ -6,7 +10,7 @@ console.log("Hola mundo");
 
 // pedir nombre
 
-var nombre = prompt("Como te llamas?");
+var nombre = prompt("Cual es tu nombre?");
 
 alert("Hola " + nombre);
 console.log("Hola " + nombre);
@@ -14,8 +18,8 @@ console.log("Hola " + nombre);
 
 // suma de 2 numeros
 
-var num1 = parseFloat(prompt("Primer numero"));
-var num2 = parseFloat(prompt("Segundo numero"));
+var num1 = parseFloat(prompt("Primer número"));
+var num2 = parseFloat(prompt("Segundo número"));
 
 var suma = num1 + num2;
 
@@ -25,7 +29,7 @@ console.log(suma);
 
 // mayor o menor de edad
 
-var edad = parseInt(prompt("Que edad tienes?"));
+var edad = parseInt(prompt("Cual es tu edad?"));
 
 if(edad >= 18){
 
@@ -189,7 +193,7 @@ if(op === "suma"){
 // mini menu
 
 let opcion = Number(prompt(
-    "1 saludo\n2 fecha\n3 random"
+    "1 saludo 2 fecha 3 random"
 ));
 
 if(opcion === 1){
@@ -221,13 +225,13 @@ let intento = Number(prompt("Adivina del 1 al 10"));
 
 if(intento === secreto){
 
-    alert("Correcto");
-    console.log("Correcto");
+    alert("Adivinaste el numero!");
+    console.log("Adivinaste el numero!");
 
 }else{
 
-    alert("Era " + secreto);
-    console.log(secreto);
+    alert("Le erraste, intenta de nuevo");
+    console.log("Le erraste");
 }
 
 
@@ -272,59 +276,59 @@ for(let i = 0; i < frutas.length; i++){
 
 let numeros = [5, 8, 2, 20, 1];
 
-let numMayor = numeros[0];
-let numMenor = numeros[0];
+let Mayor = numeros[0];
+let Menor = numeros[0];
 
 for(let i = 0; i < numeros.length; i++){
 
-    if(numeros[i] > numMayor){
+    if(numeros[i] > Mayor){
 
-        numMayor = numeros[i];
+        Mayor = numeros[i];
     }
 
-    if(numeros[i] < numMenor){
+    if(numeros[i] < Menor){
 
-        numMenor = numeros[i];
+        Menor = numeros[i];
     }
 }
 
-console.log("Mayor:", numMayor);
-console.log("Menor:", numMenor);
+console.log("El número Mayor es:", Mayor);
+console.log("El número Menor es:", Menor);
 
 
 // promedio notas
 
-let notas = [7, 8, 10, 5];
+let notas = [1,2,3,4,5,6,7,8,9,10];
 
-let sumaNotas = 0;
+let sumanotas = 0;
 
 for(let i = 0; i < notas.length; i++){
 
-    sumaNotas += notas[i];
+    sumanotas += notas[i];
 }
 
-let promedio = sumaNotas / notas.length;
+let promedio = sumanotas / notas.length;
 
 console.log(promedio);
 
 
 // guardar nombres
 
-let lista = [];
+let names = [];
 let nom;
 
 do{
 
-    nom = prompt("Nombre o salir");
+    nom = prompt("Ingresa un nombre o 'salir' para terminar");
 
     if(nom !== "salir"){
 
-        lista.push(nom);
+        names.push(nom);
     }
 
 }while(nom !== "salir");
 
-console.log(lista);
+console.log(names);
 
 
 // cantidad elementos
@@ -349,9 +353,9 @@ for(let i = 0; i < nums.length; i++){
 
 // includes
 
-let frutas2 = ["Manzana", "Banana", "Pera"];
+let frutas1 = ["Manzana", "Banana", "Pera"];
 
-if(frutas2.includes("Banana")){
+if(frutas1.includes("Banana")){
 
     console.log("Existe");
 
@@ -363,17 +367,17 @@ if(frutas2.includes("Banana")){
 
 // pop
 
-let frutas3 = ["Manzana", "Banana", "Pera"];
+let frutas2 = ["Manzana", "Banana", "Pera"];
 
-frutas3.pop();
+frutas2.pop();
 
-console.log(frutas3);
+console.log(frutas2);
 
 
 // push
 
-let frutas4 = ["Manzana", "Banana"];
+let frutas3 = ["Manzana", "Banana"];
 
-frutas4.push("Pera");
+frutas3.push("Pera");
 
-console.log(frutas4);
+console.log(frutas3);
