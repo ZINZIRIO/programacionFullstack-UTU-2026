@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio_10</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1 id="titulo">Titulo de la pagina</h1>
+    <button onclick="cambiarTexto()">Cambiar texto</button>
+
+    <p id="parrafo">Esto es un parrafo.</p>
+    <button onclick="cambiarParrafo()">Cambiar parrafo</button>
+
+    <br><br>
+
+    <img id="imagen" src="https://bazzaz.net/wp-content/uploads/images/products/products-zx6r_2014.jpg" alt="Moto" width="300">
+    <br><br>
+    <button onclick="cambiarImagen()">Cambiar imagen</button>
+
+    <hr>
+
+    <input type="text" id="dato" placeholder="Escribe algo">
+    <button onclick="mostrarMensaje()">Mostrar mensaje</button>
+
+    <hr>
+
+    <p id="texto">Este texto cambia de estilo.</p>
+    <button onclick="agregarClase()">Agregar clase</button>
+    <button onclick="quitarClase()">Quitar clase</button>
+
+    <hr>
+
+    <button onclick="modoOscuro()">Modo oscuro</button>
+
+    <hr>
+
+    <input type="text" id="item" placeholder="Nuevo item">
+    <button onclick="agregarElemento()">Agregar a la lista</button>
+
+    <ul id="lista">
+        <li>Ejemplo</li>
+    </ul>
+
+    <hr>
+
+    <h2>Formulario</h2>
+
+    <label>Nombre:</label>
+    <br>
+    <input type="text" id="nombre">
+    <p id="error-nombre" class="error"></p>
+
+    <label>Color favorito:</label>
+    <br>
+    <input type="text" id="color">
+    <p id="error-color" class="error"></p>
+
+    <label>Mensaje:</label>
+    <br>
+    <textarea id="mensaje"></textarea>
+    <p id="error-mensaje" class="error"></p>
+
+    <button onclick="enviarFormulario()">Enviar</button>
+
+    <h3>Datos ingresados:</h3>
+    <div id="resultado"></div>
+
+    <h3>Tarjetas:</h3>
+    <div id="tarjetas"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
