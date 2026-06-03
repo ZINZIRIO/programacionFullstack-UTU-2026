@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio 11</title>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <main>
+
+        <h1>Lista de tareas</h1>
+
+        <form id="formulario">
+
+            <input
+            type="text"
+            id="input-tarea"
+            placeholder="Escribe una tarea">
+
+            <button type="submit">
+                Agregar
+            </button>
+
+        </form>
+
+        <p id="mensaje-error"></p>
+
+        <div>
+            <p id="total">Total: 0</p>
+            <p id="completadas">Completadas: 0</p>
+            <p id="pendientes">Pendientes: 0</p>
+        </div>
+
+        <button id="todas">Todas</button>
+        <button id="filtro-completadas">Completadas</button>
+        <button id="filtro-pendientes">Pendientes</button>
+        <button id="borrar-todo">Borrar todas</button>
+
+        <ul id="lista-tareas"></ul>
+
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
