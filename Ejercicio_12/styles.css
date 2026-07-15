@@ -1,0 +1,141 @@
+*{
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: lightgray;
+}
+
+.dark{
+    background-color: black;
+    color: whitesmoke;
+    background-color: black;
+    color: white;
+}
+
+
+.titulo-style{
+    color: red;
+}
+
+header{
+    text-align: center;
+    padding: 25px;
+    background-color: white;
+    border-bottom: 2px solid black;
+}
+
+
+.btn-nombre{
+    border: 0px solid black;
+    background-color: transparent;
+    padding: 8px;
+    color: blue;
+    font-weight: bold;
+}
+
+.tarjetas{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    padding: 20px;
+}
+
+.tarjetas > div > img{
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid black;
+}
+
+.tarjetas > div{
+    width: 22%;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+}
+
+.imagenes-fav{
+    color: rgb(237, 237, 107);
+}
+
+.container-form{
+    padding: 50px 20px;
+    border-radius: 2%;
+    margin: 20px;
+    border: 1px solid black;
+    max-width: 500px;
+    margin: 30px auto;
+    background-color: white;
+}
+
+input{
+    margin: 20px 0px;
+    border-radius: 0.2rem;
+    border: 1px solid grey;
+}
+
+.error-style{
+    border-radius: 2%;
+    background-color: red;
+    border: 2px solid black;
+    margin: 20px;
+    padding: 20px;
+    color: white;
+    font-size: 1.2rem;
+    width: 300px;
+    margin: 0px auto;
+}
+
+.card-style{
+    margin: 20px;
+    background-color: whitesmoke;
+    padding: 20px;
+    border-radius: 2%;
+    border: 1px solid black;
+}
+
+.card-style > p{
+    width: 100%;
+    overflow-wrap: break-word;
+}
+
+.favorito-style{
+    padding: 10px 15px;
+    border: 0px solid black;
+    background-color: transparent;
+    color: orange;
+    font-size: 1.2rem;
+}
+
+.descripcion{
+    height: 150px;
+    width: 164px;
+    resize: none;
+}
+
+button{
+    cursor: pointer;
+}
+
+button:hover{
+    background-color: lightblue;
+}
+
+input,
+.descripcion{
+    width: 100%;
+    padding: 10px;
+    border: 1px solid black;
+}
+
+input:focus,
+.descripcion:focus{
+    background-color: lightyellow;
+}

@@ -1,0 +1,16 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+    background-color: azure;
+}
+
+#catImage {
+    border-radius: 10px;
+    margin-top: 20px;
+    border: 2px solid #ccc;
+}
+
+h1 {
+    color: #333;
+}
