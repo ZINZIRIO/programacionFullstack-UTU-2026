@@ -1,13 +1,19 @@
 <?php
-$nombres = ["Ana", "Juan", "María", "Pedro", "Lucía"];
-$nombreBuscado = "María";
+$nombres=["Juan", "María", "Pedro", "Ana", "Luis", "Valentina"];
+$nombre ="Juan";
 $encontrado = false;
 
-foreach ($nombres as $nombre) {
-    if ($nombre === $nombreBuscado) {
+foreach($nombres as $nombre)    {
+    if($nombre == "Juan") {
         $encontrado = true;
         break;
     }
 }
 
-echo $encontrado ? "El nombre fue encontrado" : "El nombre no existe";
+if($encontrado) {
+    echo "El nombre $nombre fue encontrado.";
+} else {
+    echo "El nombre $nombre no fue encontrado.";
+}   
+
+    ?>
